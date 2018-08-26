@@ -6,25 +6,12 @@ var fs = require("fs");
 var Twitter = require('twitter');
 
 var client = new Twitter(keys.twitter);
-// var client = new Twitter({
-//   consumer_key: process.env.TWITTER_CONSUMER_KEY,
-//   consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
-//   access_token_key: process.env.TWITTER_ACCESS_TOKEN_KEY,
-//   access_token_secret: process.env.TWITTER_ACCESS_TOKEN_SECRET
-// });
 var request = require('request');
 var Spotify = require('node-spotify-api');
 var spotify = new Spotify(keys.spotify);
 
-
-// var spotify = new Spotify({
-//   id: <your spotify client id>,
-//   secret: <your spotify client secret>
-// });
-
 var userCommand = process.argv[2];
 var query = process.argv[3];
-
 
 function myTweets(){
 var params = {
@@ -47,7 +34,6 @@ client.get('statuses/user_timeline', params, function(error, tweets, response){
 
 			});
 }
-
 
 
 function spotifyThisSong () {
@@ -76,6 +62,8 @@ function spotifyThisSong () {
   })
 
 }
+
+
 function thisMovie(){
  var query = process.argv.slice(3);
  var movie = query.join('+');
@@ -84,7 +72,6 @@ function thisMovie(){
 	   movie = "Mr nobody";
 
 	 } 
-
 
 var url = "http://www.omdbapi.com/?t="+ movie + "&y=&plot=short&apikey=trilogy";
 
@@ -98,7 +85,7 @@ request(url, function(error, response, body) {
     // Parse the body of the site and recover just the imdbRating
     // (Note: The syntax below for parsing isn't obvious. Just spend a few moments dissecting it).
    
-	console.log(JSON.parse(body));
+	// console.log(JSON.parse(body));
 	console.log("* Title of the movie:         " + JSON.parse(body).Title);
 	console.log("* Year the movie came out:    " + JSON.parse(body).Year);
 	console.log("* IMDB Rating of the movie:   " + JSON.parse(body).imdbRating);
@@ -107,34 +94,14 @@ request(url, function(error, response, body) {
 	console.log("* Plot of the movie:          " + JSON.parse(body).Plot);
 	console.log("* Actors in the movie:        " + JSON.parse(body).Actors);
    
-  }
-});
-
-}
-
-
-function fileRead(){
-// This block of code will read from the "movies.txt" file.
-// It's important to include the "utf8" parameter or the code will provide stream data (garbage)
-// The code will store the contents of the reading inside the variable "data"
-fs.readFile("random.txt", "utf8", function(error, data) {
-
-  // If the code experiences any errors it will log the error to the console.
-  if (error) {
-    return console.log(error);
-  }
-
-  // We will then print the contents of data
-  console.log(data);
-
-  // Then split it by commas (to make it more readable)
-  var dataArr = data.split(",");
-
-  // We will then re-display the content as an array for later use.
-  console.log(dataArr);
-
-});
-}
+     for(var i = 0; i < JSON.parse(body).Ratings.length; i++) {
+	    	if(JSON.parse(body).Ratings[i].Source === "Rotten Tomatoes") {
+	    		console.log("* Rotten Tomatoes Rating:     " + JSON.parse(body).Ratings[i].Value);
+	    		 }
+	    		}
+	    	}
+	    });
+   };
 
 
 if(userCommand === "my-tweets") {
@@ -144,5 +111,34 @@ if(userCommand === "my-tweets") {
 }else if(userCommand === "movie-this") {
   thisMovie();
 } else if(userCommand === "do-what-it-says") {
-  fileRead();
+	
+
+	fs.readFile("random.txt", "utf-8", function(error, data) {
+		var userCommand;
+		var query;
+  // console.log(data);
+		
+		if(data.indexOf(",") !==-1) {
+			var dataArr = data.split(",");
+			userCommand = dataArr[0];
+			query = dataArr[1];
+			var songChoice = query; 				
+		} else {
+			userCommand = data;
+		}
+		// After reading the command from the file, then directs which app function to run
+		if(userCommand === "my-tweets") {
+			myTweets();
+		} else if(userCommand === "spotify-this-song") {
+			spotifyThisSong();
+		} else if(userCommand === "movie-this") {
+			thisMovie();
+		} else { 
+			console.log("command from file is not a valid command! Please try again.")
+		}
+	});
+} else if(userCommand === undefined) {
+	console.log("Please enter a command.")
+} else { 
+	console.log(" your command is not recognized! Please try again.")
 }

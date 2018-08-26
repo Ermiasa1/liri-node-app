@@ -13,8 +13,4 @@ exports.spotify = {
   secret: process.env.SPOTIFY_SECRET
 };
 
-// exports.spotify = {
-//   id: b2ce37552f97413b9d0d1384444fb029.SPOTIFY_ID,
 
-//   secret: 263138939c0248f3be9fc9284ecc4d0e.SPOTIFY_SECRET
-// };
